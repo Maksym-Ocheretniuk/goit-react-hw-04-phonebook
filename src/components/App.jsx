@@ -12,16 +12,22 @@ import css from './App.module.css';
 // ! На ХУКах
 
 export function App() {
-  const [filter, setFilter] = useState();
+  const [filter, setFilter] = useState('');
 
   const [contacts, setContacts] = useState(() => {
-    return JSON.parse(localStorage.getItem('contacts')) ?? [];
+    return JSON.parse(localStorage.getItem('contacts')) ?? [...contactsData];
   });
 
+  // альтернатива componentDidMount(){}
   useEffect(() => {
     const contacts = localStorage.getItem('contacts');
     if (JSON.parse(contacts)) setContacts(JSON.parse(contacts));
   }, []);
+
+  // альтернатива componentDidUpdate(_, prevState){}
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
   const formSubmitHandler = data => {
     const newContact = { id: nanoid(), ...data };
@@ -32,17 +38,17 @@ export function App() {
     setFilter(e.target.value);
   };
 
-  const normalizedFilter = filter.toLowerCase();
-  const visibleContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(normalizedFilter)
-  );
-
   const deleteContact = contactId => {
     setContacts(prevState =>
       prevState.filter(contact => contact.id !== contactId)
     );
     setFilter('');
   };
+
+  const normalizedFilter = filter.toLowerCase();
+  const visibleContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(normalizedFilter)
+  );
 
   return (
     <div className={css.mainContainer}>
